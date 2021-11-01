@@ -42,8 +42,9 @@ private:
             trie[son].link = 0;
         }
         else {
-            trie[son].link = trie[trie[parent].link].to[letter_number];
-            trie[son].terminal = trie[son].terminal || trie[trie[trie[parent].link].to[letter_number]].terminal;
+            int extended_father = trie[trie[parent].link].to[letter_number];
+            trie[son].link = extended_father;
+            trie[son].terminal = trie[son].terminal || trie[extended_father].terminal;
         }
         for (int j = 0; j < alphabet_size; ++j) {
             if (trie[son].to[j] != -1)
@@ -86,23 +87,19 @@ public:
     }
 
 private:
-    bool is_cyclic(int v, std::vector<int>& marked)
+    bool is_cyclic(int vertex, std::vector<int>& marked)
     {
-        marked[v] = 1;
-        int u = trie[v].to[0];
-        int w = trie[v].to[1];
-        if (marked[u] == 1 or marked[w] == 1) {
-            return true;
-        }
-        if (marked[u] == 0 && !trie[u].terminal) {
-            if (is_cyclic(u, marked))
+        marked[vertex] = 1;
+
+        for (auto vertex_to: trie[vertex].to) {
+            if (marked[vertex_to] == 1)
                 return true;
+            if (marked[vertex_to] == 0 && !trie[vertex_to].terminal) {
+                if (is_cyclic(vertex_to, marked))
+                    return true;
+            }
         }
-        if (marked[w] == 0 && !trie[w].terminal) {
-            if (is_cyclic(w, marked))
-                return true;
-        }
-        marked[v] = 2;
+        marked[vertex] = 2;
         return false;
     }
 };
