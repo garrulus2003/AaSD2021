@@ -6,12 +6,12 @@
 
 const int MUCH = 10000000;
 
-class Tree {
+class SuffixTree {
     struct Node {
-        int l;
+        int left_ind;
         int len;
         int link = 0;
-        explicit Node(int l = -1, int len = MUCH) : l(l), len(len){};
+        explicit Node(int l = -1, int len = MUCH) : left_ind(l), len(len){};
         std::map<char, int> go;
     };
 
@@ -36,7 +36,7 @@ public:
     bool find(const std::string& command);
     void enlarge(char c);
 
-    Tree(const std::string& s) : s(s) {
+    SuffixTree(const std::string& s) : s(s) {
         nodes.push_back(Node());
         for (int i = 0; i < s.size(); ++i) {
             add(i);
@@ -44,7 +44,7 @@ public:
     }
 };
 
-void Tree::next_case() {
+void SuffixTree::next_case() {
     if (current_vertex == 0) {
         remainder -= 1;
     } else {
@@ -52,19 +52,19 @@ void Tree::next_case() {
     }
 }
 
-bool Tree::can_go(char c) {
+bool SuffixTree::can_go(char c) {
     return nodes[current_vertex].go.find(c) != nodes[current_vertex].go.end();
 };
 
-bool Tree::short_path(char c) {
+bool SuffixTree::short_path(char c) {
     return nodes[nodes[current_vertex].go[c]].len < remainder;
 }
 
-bool Tree::ended_path(char c, int i) {
-    return s[nodes[nodes[current_vertex].go[c]].l + remainder - 1] == s[i];
+bool SuffixTree::ended_path(char c, int i) {
+    return s[nodes[nodes[current_vertex].go[c]].left_ind + remainder - 1] == s[i];
 }
 
-void Tree::no_path(char c, int i, int& prev) {
+void SuffixTree::no_path(char c, int i, int& prev) {
     nodes.emplace_back(i);
     nodes[current_vertex].go[c] = nodes.size() - 1;
 
@@ -75,7 +75,7 @@ void Tree::no_path(char c, int i, int& prev) {
     prev = -1;
 }
 
-void Tree::add(int i) {
+void SuffixTree::add(int i) {
     remainder += 1;
     int prev = -1;
 
@@ -98,12 +98,12 @@ void Tree::add(int i) {
             return;
         } else {
             int next = nodes[current_vertex].go[beginning];
-            nodes.push_back(Node(nodes[next].l, remainder - 1));
+            nodes.push_back(Node(nodes[next].left_ind, remainder - 1));
             if (nodes[next].len < MUCH) {
                 nodes[next].len -= (remainder - 1);
             }
-            nodes[next].l += (remainder - 1);
-            nodes.back().go[s[nodes[next].l]] = next;
+            nodes[next].left_ind += (remainder - 1);
+            nodes.back().go[s[nodes[next].left_ind]] = next;
             nodes[current_vertex].go[beginning] = nodes.size() - 1;
             nodes.push_back(Node(i));
             nodes[nodes.size() - 2].go[s[i]] = nodes.size() - 1;
@@ -116,12 +116,12 @@ void Tree::add(int i) {
     }
 }
 
-int Tree::depth_in_edge(int vertex) const {
-    return (nodes[vertex].len == MUCH) ? (s.size() - nodes[vertex].l)
+int SuffixTree::depth_in_edge(int vertex) const {
+    return (nodes[vertex].len == MUCH) ? (s.size() - nodes[vertex].left_ind)
                                        : nodes[vertex].len;
 }
 
-bool Tree::find(const std::string& pattern) {
+bool SuffixTree::find(const std::string& pattern) {
     int vertex = 0;
     int up = 0;
 
@@ -133,14 +133,14 @@ bool Tree::find(const std::string& pattern) {
             up = depth_in_edge(vertex) - 1;
         } else {
             int len = depth_in_edge(vertex);
-            if (s[nodes[vertex].l + len - up] != pattern[i]) return false;
+            if (s[nodes[vertex].left_ind + len - up] != pattern[i]) return false;
             --up;
         }
     }
     return true;
 }
 
-void Tree::enlarge(char c) {
+void SuffixTree::enlarge(char c) {
     s += c;
     add(s.size() - 1);
 }
@@ -149,7 +149,7 @@ int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(NULL);
 
-    Tree t("");
+    SuffixTree t("");
     char symbol;
     std::string text;
     while (std::cin >> symbol >> text) {
