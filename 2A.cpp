@@ -2,18 +2,20 @@
 #include <string>
 #include <vector>
 
+char minimal_symbol = '@';
+int letters_number = 257;
 std::vector<int> suffix_mass(const std::string& str) {
-    std::string s = str + "@";
+    std::string s = str + minimal_symbol;
     size_t len = s.size();
 
     std::vector<int> permutation, classes(len);
-    std::vector<std::vector<int>> letters_pos(257);
+    std::vector<std::vector<int>> letters_pos(letters_number);
     for (int i = 0; i < len; ++i) {
-        letters_pos[s[i] - '@'].push_back(i);
+        letters_pos[s[i] - minimal_symbol].push_back(i);
     }
 
     int class_num = 0;
-    for (int i = 0; i < 257; ++i) {
+    for (int i = 0; i < letters_number; ++i) {
         if (letters_pos[i].empty()) continue;
         for (int& j : letters_pos[i]) {
             permutation.push_back(j);
@@ -58,5 +60,7 @@ int main() {
     std::string s;
     std::cin >> s;
     std::vector<int> ans = suffix_mass(s);
-    for (int i = 1; i < ans.size(); ++i) std::cout << ans[i] + 1 << " ";
+    for (int i = 1; i < ans.size(); ++i) {
+        std::cout << ans[i] + 1 << " ";
+    }
 }
